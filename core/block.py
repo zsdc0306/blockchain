@@ -2,6 +2,8 @@ from time import time
 from operation import calculate_hash_for_block
 
 
+blockchain_file_name = 'blockchain'
+
 class Block(object):
     def __init__(self, index=None, pre_hash=None, time_stamp=None, data=None, hash_val=None):
         self.index = index
@@ -17,19 +19,24 @@ class Block(object):
         self.data = "This is the first block"
         self.hash_val = calculate_hash_for_block(self)
 
+    def store_block(self):
+        line = [str(self.index), self.pre_hash, str(self.time_stamp), self.data, self.hash_val]
+        with open(blockchain_file_name, 'a') as f:
+            f.write('\n' + ",".join(line))
+
+
 
 class BlockChain(object):
     def __init__(self):
-        self.block_chain = self.get_existing_blockchain()
-        self.blochchain_file_name = 'blockchain'
+        self.block_chain = self.__get_existing_blockchain()
         self.is_exist = True if len(self.block_chain) != 0 else False
 
-    def get_existing_blockchain(self):
+    def __get_existing_blockchain(self):
         try:
             blockchain = []
-            with open(self.blochchain_file_name, 'r') as f:
+            with open(blockchain_file_name, 'r') as f:
                 for line in f:
-                    blockchain += line,
+                    blockchain += self.__load_blockchain(line),
                 return blockchain
         except OSError as e:
             print e.message
@@ -38,4 +45,8 @@ class BlockChain(object):
             print e.message
             return []
 
-
+    def __load_blockchain(self, blockchain_str):
+        block_item = Block()
+        block_item.index, block_item.pre_hash, block_item.time_stamp, block_item.data, block_item.hash_val = \
+            blockchain_str.split(',')
+        return block_item
