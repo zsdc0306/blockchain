@@ -41,5 +41,13 @@ def init():
     operation.init_block()
     return "Init successfully"
 
+def initial_app():
+    operation.init_app()
+    return True
+
+
 if __name__ == '__main__':
-    app.run()
+    if initial_app():
+        app.run()
+    else:
+        print "initial process failed"
