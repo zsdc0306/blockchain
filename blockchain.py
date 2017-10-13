@@ -1,5 +1,5 @@
 from flask import Flask
-from core import block, operation
+from core import operation
 
 app = Flask(__name__)
 
@@ -20,7 +20,7 @@ def request_new(data):
 
 @app.route('/blockchain')
 def get_blockchain():
-    return operation.get_block_chain()
+    return str(operation.get_block_chain())
 
 
 @app.route('/getlastestblock')
@@ -35,6 +35,11 @@ def receive_block(data):
     else:
         return "Fail to update the blockchain, need to resolve the conflict"
 
+
+@app.route('/init')
+def init():
+    operation.init_block()
+    return "Init successfully"
 
 if __name__ == '__main__':
     app.run()
