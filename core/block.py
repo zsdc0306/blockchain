@@ -37,9 +37,9 @@ class Block(object):
 
 class BlockChain(object):
     def __init__(self, blockchain_str=None):
-        self.block_chain = []
+        self.block_chain = self.__get_existing_blockchain()
         self.is_exist = True if len(self.block_chain) != 0 else False
-        self.lastest_block = self.block_chain[-1]
+        self.lastest_block = self.block_chain[-1] if len(self.block_chain) != 0 else None
 
     def load_existing_blockchian(self):
         self.block_chain = self.__get_existing_blockchain()
@@ -48,7 +48,8 @@ class BlockChain(object):
         try:
             blockchain = []
             with open(blockchain_file_name, 'r') as f:
-                for line in f:
+                content = f.readlines()
+                for line in content:
                     blockchain += self.__load_block(line),
                 return blockchain
         except OSError as e:
