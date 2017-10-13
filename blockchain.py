@@ -9,9 +9,13 @@ def hello_world():
     return 'Hello World!'
 
 
-@app.route('/requestblock')
-def request_new():
-    pass
+@app.route('/requestblock/<data>')
+def request_new(data):
+    try:
+        operation.generate_block(data)
+        return "New block generated."
+    except Exception as e:
+        return e.message
 
 
 @app.route('/blockchain')
@@ -22,6 +26,14 @@ def get_blockchain():
 @app.route('/getlastestblock')
 def get_last_block():
     return operation.get_latest_block()
+
+
+@app.route('/sendblock/<data>')
+def receive_block(data):
+    if operation.receive_block_chain(data):
+        return "Success"
+    else:
+        return "Fail to update the blockchain, need to resolve the conflict"
 
 
 if __name__ == '__main__':
