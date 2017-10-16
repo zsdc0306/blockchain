@@ -2,7 +2,7 @@ from time import time
 from hashlib import sha256
 import csv
 
-blockchain_file_name = '/Users/zsdc0306/Documents/project/blockchain/blockchain.csv'
+blockchain_file_name = 'blockchain.csv'
 
 
 class Block(object):
