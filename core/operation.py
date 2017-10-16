@@ -55,16 +55,25 @@ def get_block_chain():
         return f.readlines()
 
 
-def receive_block_chain(blockchain_str):
-    block_chain = block.BlockChain()
-    block_chain.load_existing_blockchain()
-    block_obj = ojbectfy_block(blockchain_str)
-    latest_block = block_chain.get_latest_block()
+def receive_block(block_str):
+    block_obj = ojbectfy_block(block_str)
     if block_obj.validate_block(latest_block):
         block_obj.store_block()
+        print "valid block received, updated to blockchain"
+        global latest_block
+        latest_block = block_obj
         return True
     else:
-        return False
+        if block_obj.index - latest_block.index != 1:
+            print "missing blocks, broadcast to get the missing block"
+            resolve_conflict()
+        elif block_obj.pre_hash != latest_block.hash_val:
+            print "invalid block, dropping"
+            return False
+
+
+def resolve_conflict():
+    pass
 
 
 
