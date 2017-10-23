@@ -25,12 +25,12 @@ def get_blockchain():
 
 @app.route('/getlastestblock')
 def get_last_block():
-    return operation.get_latest_block()
+    return operation.get_latest_block().stringfy_block()
 
 
 @app.route('/sendblock/<data>')
 def receive_block(data):
-    if operation.receive_block_chain(data):
+    if operation.receive_block(data):
         return "Success"
     else:
         return "Fail to update the blockchain, need to resolve the conflict"
