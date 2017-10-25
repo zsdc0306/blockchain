@@ -1,7 +1,8 @@
 from flask import Flask
-from core import operation
+from core import operation as op
 
 app = Flask(__name__)
+operation = op.Operation()
 
 
 @app.route('/')
@@ -25,7 +26,7 @@ def get_blockchain():
 
 @app.route('/getlastestblock')
 def get_last_block():
-    return operation.get_latest_block().stringfy_block()
+    return operation.get_latest_block().stringify_block()
 
 
 @app.route('/sendblock/<data>')
@@ -41,13 +42,9 @@ def init():
     operation.init_block()
     return "Init successfully"
 
-def initial_app():
-    operation.init_app()
-    return True
-
 
 if __name__ == '__main__':
-    if initial_app():
+    if operation.init_app():
         app.run()
     else:
         print "initial process failed"

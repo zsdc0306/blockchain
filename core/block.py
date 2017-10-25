@@ -2,16 +2,16 @@ from time import time
 from hashlib import sha256
 import csv
 
-blockchain_file_name = 'blockchain.csv'
+blockchain_file_name = 'blockchain'
 
 
 class Block(object):
-    def __init__(self):
-        self.index = None
-        self.pre_hash = None
-        self.time_stamp = None
-        self.data = None
-        self.hash_val = None
+    def __init__(self, index=None, pre_hash=None, time_stamp=None, data=None, hash_val=None):
+        self.index = index
+        self.pre_hash = pre_hash
+        self.time_stamp = time_stamp
+        self.data = data
+        self.hash_val = data
 
     def set_block(self, index, pre_hash, data, time_stamp=None, hash_val=None):
         self.index = index
@@ -20,7 +20,6 @@ class Block(object):
         self.time_stamp = str(time()).split('.')[0] if time_stamp is None else time_stamp
         self.hash_val = self.calculate_hash_for_block() if hash_val is None else str(hash_val)
 
-
     def init_first_block(self):
         self.index = 0
         self.pre_hash = "0"
@@ -28,17 +27,19 @@ class Block(object):
         self.time_stamp = str(time()).split('.')[0]
         self.hash_val = self.calculate_hash_for_block()
 
-    def store_block(self):
-        block_str = self.stringfy_block()
+    def store_block(self, mode='a'):
+        block_str = self.stringify_block()
         print block_str
         try:
-            with open(blockchain_file_name, 'a') as f:
-                w = csv.writer(f)
-                w.writerow([str(self.index), self.pre_hash, str(self.time_stamp), self.data, self.hash_val])
+            with open(blockchain_file_name, mode) as f:
+                # w = csv.writer(f)
+                # w.writerow(self.stringify_block())
+                f.write(self.stringify_block())
+                f.write('\n')
         except Exception as e:
             print e.message
 
-    def stringfy_block(self):
+    def stringify_block(self):
         content = [str(self.index), self.pre_hash, str(self.time_stamp), self.data, self.hash_val]
         return ','.join(content) + '\n'
 
