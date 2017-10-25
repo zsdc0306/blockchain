@@ -32,13 +32,12 @@ class CertBlock(Block):
                    self.hash_val]
         return ','.join(content) + '\n'
 
-    def store_block(self):
+    def store_block(self, mode='a'):
         block_str = self.stringify_block()
         print block_str
         try:
-            with open(cert_blockchain_file_name, 'a') as f:
+            with open(cert_blockchain_file_name, mode) as f:
                 w = csv.writer(f)
                 w.writerow(self.stringify_block())
         except Exception as e:
             print e.message
-    
