@@ -4,6 +4,9 @@ from core import operation as op
 app = Flask(__name__)
 operation = op.Operation()
 
+def abc():
+    pass
+
 
 @app.route('/')
 def hello_world():
