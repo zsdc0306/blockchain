@@ -102,3 +102,5 @@ ENV/
 
 .idea/
 
+P2PFramework/peertopeer.py
+P2PFramework/temp.py
