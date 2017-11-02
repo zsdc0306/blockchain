@@ -5,7 +5,6 @@ CERT_FILE = "selfsigned.crt"
 KEY_FILE = "private.key"
 
 def create_self_signed_cert():
-
     # create a key pair
     k = crypto.PKey()
     k.generate_key(crypto.TYPE_RSA, 1024)
