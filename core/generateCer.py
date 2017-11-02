@@ -10,7 +10,7 @@ def create_self_signed_cert():
     k.generate_key(crypto.TYPE_RSA, 1024)
     # create a self-signed cert
     cert = crypto.X509()
-    # use mac address as cert identity
+    # use mac address as cert identifier
     cert.get_subject().CN=':'.join(['{:02x}'.format((uuid.getnode() >> i) & 0xff) for i in range(0, 8 * 6, 8)][::-1])
     cert.set_serial_number(12345)
     cert.gmtime_adj_notBefore(0)
