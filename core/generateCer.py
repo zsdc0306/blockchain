@@ -1,7 +1,9 @@
 from OpenSSL import crypto, SSL
 import uuid
+import time
 
-CERT_FILE = "selfsigned.crt"
+timestr = time.strftime("%Y%m%d-%H%M%S")
+CERT_FILE = "selfsigned_"+timestr+".crt"
 KEY_FILE = "private.key"
 
 def create_self_signed_cert():
