@@ -24,6 +24,8 @@ class IOTPeer:
         self.router=None;
         self.handlers={};
         self.debug=debug;
+        #Dpos Producers/witnesses
+        self.producers=[];
         return
 
     def __initServerhost(self,contype):
@@ -38,16 +40,27 @@ class IOTPeer:
             s.close();
         return
 
+    def update_producers(self,producers):
+        try:
+            self.producers=producers;
+        except Exception as e:
+            return False;
+        return True;
+
     def get_mac(self,addr):
         '''
         Get Mac Address using the Ip address from ARP table
         :param addr:
         :return:
         '''
-        pid = Popen(["arp", "-n", addr[0]], stdout=PIPE)
-        s = pid.communicate()[0]
-        mac = re.search(r"(([a-f\d]{1,2}\:){5}[a-f\d]{1,2})", s).groups()[0]
-        print mac
+        try:
+            pid = Popen(["arp", "-n", addr[0]], stdout=PIPE)
+            s = pid.communicate()[0]
+            mac = re.search(r"(([a-f\d]{1,2}\:){5}[a-f\d]{1,2})", s).groups()[0]
+            print mac
+        except Exception as e:
+            return None;
+
         return mac;
 
     def decode_data(self,data,nbytes,addr):
@@ -105,7 +118,7 @@ class IOTPeer:
             if command: command=command.upper();
 
             if command in self.handlers:
-                self.handlers[command](msg);
+                self.handlers[command](self,addr,msg);
             else:
                 print "Invalid command, no handler found"
 

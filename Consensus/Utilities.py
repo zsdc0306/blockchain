@@ -1,13 +1,15 @@
 import time
+import socket
+import struct
+import sys
 
-tb0=1509740483L;
+tb0=1509740483L
+timeslot = 3;  # AFTER 3 Seconds change producer
+no_of_producers=3;
 
 def gettime_ntp(addr='time.nist.gov'):
     # http://code.activestate.com/recipes/117211-simple-very-sntp-client/
-    import socket
-    import struct
-    import sys
-    import time
+
     TIME1970 = 2208988800L      # Thanks to F.Lundh
     client = socket.socket( socket.AF_INET, socket.SOCK_DGRAM )
     data = '\x1b' + 47 * '\0'
@@ -21,10 +23,18 @@ def gettime_ntp(addr='time.nist.gov'):
 
 #get current time anc calculate the block that needs to produce at the given time
 def whoseturn(no_of_producers):
-    timeslot = 3;  # AFTER 3 Seconds change producer
+
     currtime=gettime_ntp()[1]
     totalslots= (currtime-tb0)/timeslot;
-    #print producers[totalslots%no_of_producers],currtime
+    print totalslots%no_of_producers,currtime
     return totalslots % no_of_producers
 
-print gettime_ntp()
+#validate that the timestamp and producer are correct
+def validate_timestamp(producer,timestamp):
+
+    ts=(timestamp-tb0)/timeslot
+    if ts%no_of_producers==producer:
+        return True;
+    return False;
+
+#print gettime_ntp()

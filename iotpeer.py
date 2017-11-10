@@ -1,7 +1,22 @@
-
 from P2PFramework import p2p
 import math;
 import scipy.stats as st
+
+
+
+#Admin update module
+def admin_update(iot,addr,msg):
+    print addr,msg;
+
+    return
+
+def update_producers(iot,addr,msg):
+
+    producers=msg.split(",");
+    if iot.update_producers():
+        print "Successfully updated witnesses/producers";
+
+    return
 
 #Quite useful when the number of Devices are really high
 def get_sample(N,confidence,error,variability=None):
@@ -30,16 +45,19 @@ def get_sample(N,confidence,error,variability=None):
     return int(n);
 
 
-def hell(msg):
+def hell(addr,msg):
     print "Message ffrom hell",msg;
     return
 
 
 host='10.0.0.187';
-port=2429
-#iot1=p2p.IOTPeer(port,'iot1',None,contype="udp")
-#iot1.addhandler("HELL",hell)
-#iot1.serverloop();
+port=2430
+iot1=p2p.IOTPeer(port,'iot1',None,contype="udp")
+iot1.addhandler("HELL",hell)
+iot1.addhandler("ADMI",admin_update)
+iot1.addhandler("PROD",update_producers)
+#iot1.addhandler("",admin_update)
+iot1.serverloop();
 
 
 
@@ -57,4 +75,4 @@ print msg.encode("hex")
 '''
 
 
-print get_sample(10,0.95,0.05,0.5)
+#print get_sample(10,0.95,0.05,0.5)
