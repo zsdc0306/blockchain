@@ -1,9 +1,13 @@
 import block
-
+import iotpeer
 
 class Operation(object):
     def __init__(self):
         self.latest_block = self.get_latest_block()
+        self.handlers = iotpeer.handlers(self)
+        self.p2p_server = iotpeer.p2pThread(self.handlers)
+        self.p2p_server.start()
+
 
     def init_block(self):
         b = block.Block()
@@ -69,6 +73,10 @@ class Operation(object):
                 return False
 
     def resolve_conflict(self):
+        pass
+
+    def stopp2p(self):
+        self.p2p_server._stop();
         pass
 
 

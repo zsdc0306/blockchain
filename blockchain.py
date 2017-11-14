@@ -45,9 +45,16 @@ def init():
     operation.init_block()
     return "Init successfully"
 
+@app.route('/stop')
+def stopp2p():
+    operation.stopp2p()
+    return "Stopped p2p"
 
 if __name__ == '__main__':
     if operation.init_app():
-        app.run()
+        import threading
+        fs=threading.Thread(target=app.run,args=(),kwargs={'port':5001})
+        fs.start()
+        #app.run(port=5001)
     else:
         print "initial process failed"

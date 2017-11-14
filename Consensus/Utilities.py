@@ -38,3 +38,19 @@ def validate_timestamp(producer,timestamp):
     return False;
 
 #print gettime_ntp()
+
+# Get my mac address
+def get_mymac():
+
+    from uuid import getnode as get_mac
+    mac=None;
+
+    try:
+        mac = get_mac()
+        mac = ':'.join(("%012X" % mac)[i:i + 2] for i in range(0, 12, 2))
+
+    except Exception as e:
+        return None
+
+    return mac
+

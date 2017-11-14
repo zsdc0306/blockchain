@@ -41,11 +41,23 @@ class IOTPeer:
         return
 
     def update_producers(self,producers):
+
         try:
             self.producers=producers;
         except Exception as e:
             return False;
+
         return True;
+
+    def update_sharedkey(self,key):
+
+        try:
+            self.key=key;
+        except Exception as e:
+            return False;
+
+        return True;
+
 
     def get_mac(self,addr):
         '''
