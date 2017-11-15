@@ -23,8 +23,8 @@ class Operation(object):
             self.init_app()
         return True
 
-    def ojbectfy_block(self, str):
-        block_item = str.split(",")
+    def ojbectfy_block(self, block_str):
+        block_item = block_str.split(",")
         [index, pre_hash, time_stamp, data, hash_val] = block_item
         b = block.Block()
         b.set_block(index,pre_hash,data, time_stamp,hash_val)
@@ -76,7 +76,7 @@ class Operation(object):
         pass
 
     def stopp2p(self):
-        self.p2p_server._stop();
+        self.p2p_server._stop()
         pass
 
 

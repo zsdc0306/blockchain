@@ -1,6 +1,6 @@
 from time import time
 import Utilities as ut
-import json;
+import json
 
 #Hardcoded in all Iots
 
@@ -10,10 +10,10 @@ producers=[1,2,3]
 
 total_blocks=3
 
-data=None;
-with open("../AdminInfo") as file:
-    data=json.load(file);
-    print data;
+data=None
+with open("../AdminInfo.json") as file:
+    data=json.load(file)
+    print data
     file.close()
 
 
