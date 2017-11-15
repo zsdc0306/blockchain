@@ -4,9 +4,6 @@ from core import operation as op
 app = Flask(__name__)
 operation = op.Operation()
 
-def abc():
-    pass
-
 
 @app.route('/')
 def hello_world():
@@ -29,7 +26,7 @@ def get_blockchain():
 
 @app.route('/getlastestblock')
 def get_last_block():
-    return operation.get_latest_block().stringify_block()
+    return operation.latest_block.stringify_block()
 
 
 @app.route('/sendblock/<data>')
