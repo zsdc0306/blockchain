@@ -1,3 +1,4 @@
+from flask import Flask,request
 from flask import Flask
 from core import operation as op
 
@@ -35,6 +36,29 @@ def receive_block(data):
         return "Success"
     else:
         return "Fail to update the blockchain, need to resolve the conflict"
+
+@app.route('/authorizeme',methods=['POST'])
+def authorize():
+
+    if request.method=="POST":
+        if "data" in request.form:
+            data = request.form["data"]
+            bc=operation.get_block_chain()
+            bc=bc.split("\n")[:-1]
+            for b in bc:
+                if b.split(",")[3]==data:
+                    return "Success"
+
+    return "Failure"
+
+@app.route('/aaddme',methods=['POST'])
+def addme():
+
+    if "data" in request.form:
+        data=request.form["data"]
+        # Broadcast new block to everyone
+        iot=operation.p2p_server.iot.iot1.send_data("NBLC","ABCD")
+        return "Ok Requested on your behalf"
 
 
 @app.route('/init')
