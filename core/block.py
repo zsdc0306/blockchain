@@ -34,13 +34,14 @@ class Block(object):
             with open(blockchain_file_name, mode) as f:
                 # w = csv.writer(f)
                 # w.writerow(self.stringify_block())
-                f.write(self.stringify_block())
-                f.write('\n')
+                f.write(block_str)
+                #f.write('\n')
         except Exception as e:
             print e.message
 
     def stringify_block(self):
         content = [str(self.index), self.pre_hash, str(self.time_stamp), self.data, self.hash_val]
+        print self.pre_hash
         return ','.join(content) + '\n'
 
     def calculate_hash_for_block(self):

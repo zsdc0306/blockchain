@@ -150,13 +150,13 @@ class IOTPeer:
         self.handlers[msgtype] = handler
         pass;
 
-    def send_data(self,data):
+    def send_data(self,command,data):
 
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         s.connect(('255.255.255.255',self.serverport))
-        msg=self.make_data("HELL", "Hello World")
+        msg=self.make_data(command, data)
         #print msg
         s.send(msg);
         s.close();

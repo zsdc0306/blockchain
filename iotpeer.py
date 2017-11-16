@@ -22,6 +22,7 @@ class handlers():
     def update_producers(self,iot,addr,msg):
 
         producers=msg.split(",")
+        print "aa"
         if iot.update_producers(producers):
             print "Successfully updated witnesses/producers"
 
@@ -47,17 +48,19 @@ class handlers():
         """
 
         #check turn
+        print "entered handler"
         if iot1.producers==None:
             print "Error no witness found"
             return False
 
         mymac=ut.get_mymac()
-        if mymac in iot1.producers:
+        if mymac.lower() in iot1.producers:
             ind=ut.whoseturn(len(iot1.producers))
-            if iot1.producers[ind]==mymac:
+            print "Turn:",iot1.producers[ind]
+            if iot1.producers[ind]==mymac.lower():
                 print "my turn";
                 # add block
-                self.operations.receive_block(msg)
+                self.operations.generate_block(msg)
 
 
         return True;
