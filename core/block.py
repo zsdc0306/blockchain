@@ -41,7 +41,7 @@ class Block(object):
 
     def stringify_block(self):
         content = [str(self.index), self.pre_hash, str(self.time_stamp), self.data, self.hash_val]
-        return ','.join(content) + '\n'
+        return ','.join(content)
 
     def calculate_hash_for_block(self):
         return str(sha256(str(self.index) + self.pre_hash + self.time_stamp + self.data).hexdigest())

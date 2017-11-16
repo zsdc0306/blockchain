@@ -3,11 +3,14 @@ from hashlib import sha256
 import csv
 cert_blockchain_file_name = 'cert_blockchain.csv'
 
+
 class CertBlock(Block):
     def __init__(self):
-        super(self.__class__,self).__init__()
+        super(self.__class__, self).__init__()
         self.cert_id = None
         self.cert_status = True
+        self.request_time_stamp = None
+        self.producer = None
 
     def set_cert_block(self,
                        cert_id,
@@ -16,11 +19,15 @@ class CertBlock(Block):
                        pre_hash,
                        data,
                        time_stamp=None,
-                       hash_val=None):
+                       hash_val=None,
+                       producer=None,
+                       request_time=None):
         self.set_block(index, pre_hash, data, time_stamp, hash_val)
         self.cert_id = cert_id
         self.cert_status = cert_status
         self.hash_val = self.calculate_hash_for_block()
+        self.producer = producer
+        self.request_time_stamp = request_time
 
     def calculate_hash_for_block(self):
         return str(sha256(str(self.index) + self.pre_hash + self.time_stamp + self.data +
