@@ -76,6 +76,7 @@ if __name__ == '__main__':
         import threading
         fs=threading.Thread(target=app.run,args=(),kwargs={'port':5001})
         fs.start()
+        operation.start_p2p()
         #app.run(port=5001)
     else:
         print "initial process failed"

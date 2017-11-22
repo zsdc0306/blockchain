@@ -6,8 +6,9 @@ class Operation(object):
         self.latest_block = self.get_latest_block()
         self.handlers = iotpeer.handlers(self)
         self.p2p_server = iotpeer.p2pThread(self.handlers)
-        self.p2p_server.start()
 
+    def start_p2p(self):
+        self.p2p_server.start()
 
     def init_block(self):
         b = block.Block()
@@ -81,6 +82,17 @@ class Operation(object):
 
     def resolve_conflict(self):
         pass
+
+    def response_syn_block(self, received_block_str):
+        received_block = self.ojbectfy_block(received_block_str)
+        last_index = self.latest_block.index
+        cur_index = received_block.index
+        diff = last_index - cur_index
+        blockchain = self.get_block_chain()
+        ret_block_list = blockchain.split('\n')[-diff:]
+        # response ret_block_list
+        return ret_block_list
+
 
     def stopp2p(self):
         self.p2p_server._stop()
