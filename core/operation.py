@@ -30,6 +30,13 @@ class Operation(object):
         b.set_block(index,pre_hash,data, time_stamp,hash_val)
         return b
 
+    def read_block(self,no):
+        for line in open(block.blockchain_file_name, "r"):
+            blockno = line.split(",")[0]
+            if no == int(blockno):
+                return line
+        return None
+
     def generate_block(self, data):
         new_block = block.Block()
         new_block.set_block(int(self.latest_block.index)+1, self.latest_block.hash_val, data)

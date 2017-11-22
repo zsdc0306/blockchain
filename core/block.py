@@ -14,7 +14,7 @@ class Block(object):
         self.hash_val = data
 
     def set_block(self, index, pre_hash, data, time_stamp=None, hash_val=None):
-        self.index = index
+        self.index = int(index)
         self.pre_hash = str(pre_hash)
         self.data = data
         self.time_stamp = str(time()).split('.')[0] if time_stamp is None else time_stamp
@@ -24,7 +24,7 @@ class Block(object):
         self.index = 0
         self.pre_hash = "0"
         self.data = "This is the first block"
-        self.time_stamp = str(time()).split('.')[0]
+        self.time_stamp = "1510816805"#str(time()).split('.')[0]
         self.hash_val = self.calculate_hash_for_block()
 
     def store_block(self, mode='a'):
@@ -35,20 +35,20 @@ class Block(object):
                 # w = csv.writer(f)
                 # w.writerow(self.stringify_block())
                 f.write(block_str)
-                #f.write('\n')
+                f.write('\n')
         except Exception as e:
             print e.message
 
     def stringify_block(self):
         content = [str(self.index), self.pre_hash, str(self.time_stamp), self.data, self.hash_val]
         print self.pre_hash
-        return ','.join(content) + '\n'
+        return ','.join(content)
 
     def calculate_hash_for_block(self):
         return str(sha256(str(self.index) + self.pre_hash + self.time_stamp + self.data).hexdigest())
 
     def validate_block(self, pre_block):
-        return False if pre_block.index + 1 != self.index or pre_block.hash != self.pre_hash or \
+        return False if pre_block.index + 1 != self.index or pre_block.hash_val != self.pre_hash or \
                  self.calculate_hash_for_block() != self.hash_val else True
 
 

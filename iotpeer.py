@@ -36,6 +36,52 @@ class handlers():
 
         return
 
+
+    # send missing block
+
+    def missing_block_reply(self,iot1,addr,msg):
+
+        required_block=int(msg)
+        block_data=self.operations.read_block(required_block)
+        if block_data:
+            iot1.send_data("REMB",block_data)
+        else:
+            print "I do not have the block myself"
+            return
+        pass
+
+    # RECEIVE MISSING BLOCK
+
+    def missing_block_update(self,iot1,addr,msg):
+
+        # store all responses for 5 seconds then find the longest chain and update yourself
+
+        pass
+
+    # update blockchain
+
+    def update_bc(self, iot1, addr, msg):
+
+        bc = self.operations.ojbectfy_block(msg)
+        print bc.data
+        if bc.validate_block(self.operations.latest_block):
+            print "valid block"
+            bc.store_block()
+            self.operations.latest_block = bc
+            return True
+        else:
+            if ((int(bc.index) - int(self.operations.latest_block.index)) != 1):
+                print "missing blocks, broadcast to get the missing block"
+                iot1.send_data("RQMB",str(self.operations.latest_block.index))
+
+            elif bc.pre_hash != self.operations.latest_block.hash_val:
+                print "invalid block, dropping"
+                return False
+
+        return False
+
+
+
     # new block method
 
     def new_block(self,iot1,addr,msg):
@@ -60,7 +106,11 @@ class handlers():
             if iot1.producers[ind]==mymac.lower():
                 print "my turn";
                 # add block
-                self.operations.generate_block(msg)
+                newblock=self.operations.generate_block(msg)
+                content = [str(newblock.index), newblock.pre_hash, str(newblock.time_stamp), newblock.data, newblock.hash_val]
+                data = ','.join(content)
+                # broadcast latest block
+                iot1.send_data("UBLC",data)
 
 
         return True;
@@ -87,7 +137,8 @@ class p2pInstance(object):
         self.iot1.addhandler("ADMI",self.handlers.admin_update)
         self.iot1.addhandler("PROD",self.handlers.update_producers)
         self.iot1.addhandler("NBLC",self.handlers.new_block)
-        self.iot1.addhandler("UBLC",self.handlers.update_block)
+        self.iot1.addhandler("UBLC",self.handlers.update_bc)
+        self.iot1.addhandler("RQMB",self.handlers.missing_block_reply)
 
     def run_server(self):
         self.iot1.serverloop()

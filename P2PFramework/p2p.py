@@ -100,7 +100,8 @@ class IOTPeer:
 
         except KeyboardInterrupt:
             raise
-        except:
+        except Exception as e:
+            print e
             if self.debug:
                 traceback.print_exc()
             return (None, None)
