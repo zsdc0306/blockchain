@@ -1,62 +1,57 @@
-import socket;
+import socket
 import struct
 import threading
-import time
 import traceback
 import re
 from subprocess import Popen, PIPE
 
 
-class IOTPeer:
-
-    def __init__(self,serverport,peerid,serverhost=None,debug=False,contype="tcp"):
-
-        self.maxpeers=5;
-        self.serverport=serverport;
+class IOTPeer(object):
+    def __init__(self,serverport, peerid,serverhost=None,debug=False,contype="tcp"):
+        self.maxpeers=5
+        self.serverport=serverport
         if serverhost:
-            self.serverhost=serverhost;
+            self.serverhost = serverhost
         else:
-            self.serverhost=self.__initServerhost(contype);
+            self.serverhost=self.__initServerhost(contype)
 
-        self.peerid=peerid;
-        self.protocol=contype;
-        self.peers={};
-        self.router=None;
-        self.handlers={};
-        self.debug=debug;
+        self.peerid=peerid
+        self.protocol=contype
+        self.peers={}
+        self.router=None
+        self.handlers={}
+        self.debug=debug
         #Dpos Producers/witnesses
-        self.producers=[];
+        self.producers=[]
         return
 
     def __initServerhost(self,contype):
 
         if contype=="tcp":
-            s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);
+            s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         else:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM);
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.connect(("www.google.com",80))
-            self.serverhost=s.getsockname()[0];
-            s.close();
+            self.serverhost=s.getsockname()[0]
+            s.close()
         return
 
     def update_producers(self,producers):
 
         try:
-            self.producers=producers;
+            self.producers=producers
         except Exception as e:
-            return False;
+            return False
 
-        return True;
+        return True
 
     def update_sharedkey(self,key):
-
         try:
-            self.key=key;
+            self.key=key
         except Exception as e:
-            return False;
-
-        return True;
+            return False
+        return True
 
 
     def get_mac(self,addr):
@@ -71,14 +66,14 @@ class IOTPeer:
             mac = re.search(r"(([a-f\d]{1,2}\:){5}[a-f\d]{1,2})", s).groups()[0]
             print mac
         except Exception as e:
-            return None;
+            return None
 
-        return mac;
+        return mac
 
     def decode_data(self,data,nbytes,addr):
 
         try:
-            msgtype = data[:4];
+            msgtype = data[:4]
 
             if not msgtype: return (None, None)
             del data[:4]
@@ -114,7 +109,7 @@ class IOTPeer:
 
         msglen = len(data)
         msg = struct.pack("!4sL%ds" % msglen, msgtype, msglen, data)
-        print msg;
+        print msg
 
         return msg
 
@@ -126,17 +121,17 @@ class IOTPeer:
         '''
 
         try:
-            command,msg=self.decode_data(data,nbytes,addr);
+            command,msg=self.decode_data(data,nbytes,addr)
 
             if command: command=command.upper();
 
             if command in self.handlers:
-                self.handlers[command](self,addr,msg);
+                self.handlers[command](self,addr,msg)
             else:
                 print "Invalid command, no handler found"
 
         except KeyboardInterrupt:
-            raise;
+            raise
         except:
             if self.debug:
                 traceback.print_exc()
@@ -159,8 +154,8 @@ class IOTPeer:
         s.connect(('255.255.255.255',self.serverport))
         msg=self.make_data(command, data)
         #print msg
-        s.send(msg);
-        s.close();
+        s.send(msg)
+        s.close()
 
         pass;
 
@@ -176,7 +171,7 @@ class IOTPeer:
         s.bind(('', self.serverport))
 
 
-        self.shutdown=False;
+        self.shutdown=False
 
         '''
         Listen to the binded port, whenever you get a message create a new thread to handle the message;
