@@ -1,16 +1,13 @@
 from P2PFramework import p2p
-import math;
+import math
 import scipy.stats as st
-import Consensus.Utilities  as ut
+import Consensus.Utilities as ut
 import threading
-import time
 
-class handlers():
 
+class Handles(object):
     def __init__(self, operations):
-
-        self.operations=operations
-        pass
+        self.operations = operations
 
 # Admin update module
     def admin_update(self,iot,addr,msg):

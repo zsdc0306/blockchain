@@ -1,6 +1,8 @@
 from flask import Flask,request
 from flask import Flask
 from core import operation as op
+import threading
+import iotpeer
 
 app = Flask(__name__)
 operation = op.Operation()
@@ -53,7 +55,6 @@ def authorize():
 
 @app.route('/aaddme',methods=['POST'])
 def addme():
-
     if "data" in request.form:
         data=request.form["data"]
         # Broadcast new block to everyone
@@ -66,17 +67,20 @@ def init():
     operation.init_block()
     return "Init successfully"
 
-@app.route('/stop')
-def stopp2p():
-    operation.stopp2p()
-    return "Stopped p2p"
+
+# @app.route('/stop')
+# def stopp2p():
+#     operation.stopp2p()
+#     return "Stopped p2p"
+
 
 if __name__ == '__main__':
     if operation.init_app():
-        import threading
-        fs=threading.Thread(target=app.run,args=(),kwargs={'port':5001})
-        fs.start()
-        operation.start_p2p()
+        thread_flask = threading.Thread(target=app.run, args=(), kwargs={'port': 5001})
+        thread_flask.start()
+        handlers = iotpeer.Handles(operation)
+        p2p_server = iotpeer.p2pThread(handlers)
+        p2p_server.start()
         #app.run(port=5001)
     else:
         print "initial process failed"
