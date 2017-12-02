@@ -1,14 +1,11 @@
 import block
-import iotpeer
+import Queue
+
 
 class Operation(object):
     def __init__(self):
         self.latest_block = self.get_latest_block()
-        self.handlers = iotpeer.handlers(self)
-        self.p2p_server = iotpeer.p2pThread(self.handlers)
-
-    def start_p2p(self):
-        self.p2p_server.start()
+        self.task_queue = Queue.Queue
 
     def init_block(self):
         b = block.Block()
@@ -92,12 +89,6 @@ class Operation(object):
         ret_block_list = blockchain.split('\n')[-diff:]
         # response ret_block_list
         return ret_block_list
-
-
-    def stopp2p(self):
-        self.p2p_server._stop()
-        pass
-
 
 
 
