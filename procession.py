@@ -5,7 +5,7 @@ class Procession(object):
     def __init__(self, operation):
         self.operation = operation
         self.shutdown = False
-        self.tasks = self.operation.task_queue
+            self.tasks = self.operation.task_queue
         self.method_handler = iotpeer.Handles(self.operation)
 
     def procession_loop(self):

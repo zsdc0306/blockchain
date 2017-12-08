@@ -1,11 +1,11 @@
 import block
 import Queue
-
+from hashlib import sha256
 
 class Operation(object):
     def __init__(self):
         self.latest_block = self.get_latest_block()
-        self.task_queue = Queue.Queue
+        self.task_queue = Queue.Queue()
 
     def init_block(self):
         b = block.Block()
@@ -35,6 +35,25 @@ class Operation(object):
                 return line
         return None
 
+    def read_blocks(self,start_no):
+
+        keep_adding=False
+        ans=""
+        for line in open(block.blockchain_file_name,'r'):
+            current_block_no=line.split(",")[0]
+
+            if int(current_block_no)==start_no:
+                keep_adding=True
+            if keep_adding:
+                ans+=line
+
+        #print ans
+        if ans=="":
+            return None
+
+        return ans
+
+
     def generate_block(self, data):
         new_block = block.Block()
         new_block.set_block(int(self.latest_block.index)+1, self.latest_block.hash_val, data)
@@ -46,8 +65,9 @@ class Operation(object):
         try:
             with open(block.blockchain_file_name,"r") as f:
                 content = f.readlines()
+                print content
                 if len(content) >= 1:
-                    latest_block = content[-2]
+                    latest_block = content[-1]
                     latest_block = self.ojbectfy_block(latest_block)
                 else:
                     print "getting blockchain error"
@@ -89,6 +109,29 @@ class Operation(object):
         ret_block_list = blockchain.split('\n')[-diff:]
         # response ret_block_list
         return ret_block_list
+
+    def calculate_hash_for_block(self,block):
+        return str(sha256(str(block.index) + block.pre_hash + block.time_stamp + block.data).hexdigest())
+
+    def validate_chain(self,chain):
+
+        dataarr = chain.split("\n")
+        dataarr=[ data for data in dataarr if len(data)>0]
+        for ind,dblock in enumerate(dataarr):
+
+            if ind==0:
+                continue
+
+            # validate dblock with previous block
+
+            current_block= self.ojbectfy_block(dblock)
+            previous_block= self.ojbectfy_block(dataarr[ind-1])
+            #return False if pre_block.index + 1 != self.index or pre_block.hash_val != self.pre_hash or \
+             #               self.calculate_hash_for_block() != self.hash_val else True
+            if previous_block.index+1 != current_block.index or previous_block.hash_val != current_block.pre_hash or self.calculate_hash_for_block(current_block) != current_block.hash_val:
+                return False
+
+        return True
 
 
 

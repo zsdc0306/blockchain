@@ -3,28 +3,54 @@ import math
 import scipy.stats as st
 import Consensus.Utilities as ut
 import threading
+import time
+
+blockchain_file_name = 'blockchain'
+
+class shared_thread(threading.Thread):
+
+
+    msglist=[]
+    winlock=threading.Lock()
+
+    def __init__(self,msg):
+        threading.Thread.__init__(self)
+        self.msg=msg
+        pass;
+
+    def run(self):
+        with shared_thread.winlock:
+            shared_thread.msglist.append(self.msg)
+            #print shared_thread.msglist
+        pass;
 
 
 class Handles(object):
+
+    window = False
+
     def __init__(self, operations):
         self.operations = operations
+        self.window=False
 
-# Admin update module
+    # Admin update module
     def admin_update(self,iot,addr,msg):
 
-        print addr,msg
+        print "Incomplete module"
 
         return
 
+    # UPDATE PRODUCERS
     def update_producers(self,iot,addr,msg):
 
         producers=msg.split(",")
-        print "aa"
+
         if iot.update_producers(producers):
             print "Successfully updated witnesses/producers"
 
         return
 
+    # UPDATE SHARED KEY
     def update_sharedkey(self,iot,addr,msg):
 
         sharedkey=msg
@@ -35,27 +61,108 @@ class Handles(object):
 
 
     # send missing block
+    # Command - RQMB
+    def send_missing_block(self,iot1,addr,msg):
 
-    def missing_block_reply(self,iot1,addr,msg):
+        # I
 
         required_block=int(msg)
-        block_data=self.operations.read_block(required_block)
+        print "Requested block",required_block
+
+        block_data=self.operations.read_blocks(required_block)
+        #print block_data
         if block_data:
-            iot1.send_data("REMB",block_data)
+            iot1.send_data("RCMB",block_data)
         else:
             print "I do not have the block myself"
             return
         pass
 
     # RECEIVE MISSING BLOCK
-
+    # Command - RCMB
     def missing_block_update(self,iot1,addr,msg):
 
-        # store all responses for 5 seconds then find the longest chain and update yourself
+
+        # add data and address to queue if the window is still open
+
+        if Handles.window:
+            shared_thread((addr,msg)).start()
+        else:
+            print "Window closed"
 
         pass
 
+    # temp functionality - opening window for sometime
+    # Command - WIND
+    def window_open(self,iot1,addr,msg):
+
+
+        if Handles.window:
+            Handles.window=False
+        Handles.window=True
+        time.sleep(6)
+        Handles.window=False
+        self.compare()
+        return
+
+    # compare received blocs
+    def compare(self):
+        '''
+        get msgs from unique address
+        filter by size
+        choose the first biggest one
+        '''
+        temp = {}
+        print ut.get_mymac()
+        biggest_chain_length=0
+        biggest_chain_address=None
+        for ind,msg in enumerate(shared_thread.msglist):
+            addr,data=msg
+
+            if addr not in temp:
+                # validate data blocks individually and also if the block fits my blockchain
+                if self.operations.validate_chain(data):
+                    temp[addr]=data
+
+                    if len(data)>biggest_chain_length:
+                        biggest_chain_length=len(data)
+                        biggest_chain_address=addr
+
+        biggest_chain=temp[biggest_chain_address]
+        print "biggest chain",biggest_chain
+        start_index=int(biggest_chain[0])
+        # Store the latest block
+        newcontent = ''
+        try:
+            with open(blockchain_file_name, 'r') as f:
+                content = f.readlines()
+
+                if len(content) >= 1:
+
+                    for ind,line in enumerate(content):
+                        if int(line[0])==start_index:
+                            newcontent=''.join(content[:ind])+biggest_chain
+
+                            break
+                print newcontent
+
+        except Exception as e:
+            print e.message
+
+        # clear the message window
+        shared_thread.msglist=[]
+
+        try:
+            with open(blockchain_file_name,'w') as f:
+
+                f.write(newcontent)
+        except Exception as e:
+            print e.message
+
+        return
+
     # update blockchain
+    # command - UBLC
 
     def update_bc(self, iot1, addr, msg):
 
@@ -69,7 +176,16 @@ class Handles(object):
         else:
             if ((int(bc.index) - int(self.operations.latest_block.index)) != 1):
                 print "missing blocks, broadcast to get the missing block"
+                # start timer
+                Handles.window=True
                 iot1.send_data("RQMB",str(self.operations.latest_block.index))
+                time.sleep(6)
+                Handles.window=False
+                # stop timer
+
+                # compare all collected data and choose the block after validation
+                self.compare()
+                # DATA FROM QUEUE
 
             elif bc.pre_hash != self.operations.latest_block.hash_val:
                 print "invalid block, dropping"
@@ -80,6 +196,7 @@ class Handles(object):
 
 
     # new block method
+    # command - NBLC
 
     def new_block(self,iot1,addr,msg):
         """
@@ -112,11 +229,6 @@ class Handles(object):
 
         return True;
 
-    def update_block(self,iot1,addr,msg):
-
-        #call update block function
-        pass
-
     def hell(self,iot,addr,msg):
         print "Message ffrom hell",msg;
         return
@@ -135,7 +247,9 @@ class p2pInstance(object):
         self.iot1.addhandler("PROD",self.handlers.update_producers)
         self.iot1.addhandler("NBLC",self.handlers.new_block)
         self.iot1.addhandler("UBLC",self.handlers.update_bc)
-        self.iot1.addhandler("RQMB",self.handlers.missing_block_reply)
+        self.iot1.addhandler("RQMB", self.handlers.send_missing_block)
+        self.iot1.addhandler("RCMB",self.handlers.missing_block_update)
+        self.iot1.addhandler("WIND",self.handlers.window_open)
 
     def run_server(self):
         self.iot1.serverloop()
