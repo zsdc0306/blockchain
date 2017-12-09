@@ -6,7 +6,7 @@ import iotpeer
 
 app = Flask(__name__)
 operation = op.Operation()
-
+p2p_server=None
 
 @app.route('/')
 def hello_world():
@@ -58,7 +58,7 @@ def addme():
     if "data" in request.form:
         data=request.form["data"]
         # Broadcast new block to everyone
-        iot=operation.p2p_server.iot.iot1.send_data("NBLC","ABCD")
+        iot=p2p_server.iot.iot1.send_data("NBLC","ABCD")
         return "Ok Requested on your behalf"
 
 
@@ -76,7 +76,7 @@ def init():
 
 if __name__ == '__main__':
     if operation.init_app():
-        thread_flask = threading.Thread(target=app.run, args=(), kwargs={'port': 5001})
+        thread_flask = threading.Thread(target=app.run, args=(), kwargs={'port': 5001,'host':'0.0.0.0'})
         thread_flask.start()
         handlers = iotpeer.Handles(operation)
         p2p_server = iotpeer.p2pThread(handlers)

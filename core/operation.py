@@ -7,6 +7,7 @@ class Operation(object):
         self.latest_block = self.get_latest_block()
         self.task_queue = Queue.Queue()
 
+
     def init_block(self):
         b = block.Block()
         b.init_first_block()
