@@ -6,7 +6,7 @@ class Operation(object):
     def __init__(self):
         self.latest_block = self.get_latest_block()
         self.task_queue = Queue.Queue()
-
+        self.cert_index_pair = {}
 
     def init_block(self):
         b = block.Block()
@@ -144,6 +144,37 @@ class Operation(object):
 
 
         return False
+
+    def cert_verify(self, recv_data, mac_addr):
+        cert_data, _mac_addr, cert_status = self.extract_cert_data(recv_data)
+        if _mac_addr != mac_addr or not cert_status:
+            return False
+        # TODO
+        # verify (cert_data)
+
+    def query_cert(self, cert_id):
+        cert_data = None
+        if cert_id in self.cert_index_pair:
+            index = self.cert_index_pair[cert_id]
+            with open(block.blockchain_file_name, "r") as f:
+                for i,content in enumerate(f):
+                    if i == index:
+                        cert_data = content.split(",")[3]
+                        break
+        else:
+            with open(block.blockchain_file_name, "r") as f:
+                for i, content in enumerate(f):
+                    cert_data, _cert_id = content.split(",")[3:5]
+                    if _cert_id == cert_id:
+                        break
+        return cert_data
+
+    @staticmethod
+    def extract_cert_data(block_data_str):
+        cert_data, _cert_id, cert_status = block_data_str.split(",")[3:6]
+        return cert_data, _cert_id, cert_status
+
+
 
 
 
