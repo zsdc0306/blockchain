@@ -32,13 +32,6 @@ def get_last_block():
     return operation.latest_block.stringify_block()
 
 
-@app.route('/sendblock/<data>')
-def receive_block(data):
-    if operation.receive_block(data):
-        return "Success"
-    else:
-        return "Fail to update the blockchain, need to resolve the conflict"
-
 @app.route('/authorizeme',methods=['POST'])
 def authorize():
 
@@ -81,6 +74,6 @@ if __name__ == '__main__':
         handlers = iotpeer.Handles(operation)
         p2p_server = iotpeer.p2pThread(handlers)
         p2p_server.start()
-        #app.run(port=5001)
+
     else:
         print "initial process failed"

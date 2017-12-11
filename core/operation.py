@@ -1,6 +1,7 @@
 import block
 import Queue
 from hashlib import sha256
+import json
 
 class Operation(object):
     def __init__(self):
@@ -22,16 +23,24 @@ class Operation(object):
             self.init_app()
         return True
 
-    def ojbectfy_block(self, block_str):
+    def objectify_block(self, block_str):
         block_item = block_str.split(",")
         [index, pre_hash, time_stamp, data, hash_val] = block_item
         b = block.Block()
         b.set_block(index,pre_hash,data, time_stamp,hash_val)
         return b
 
+    def jsontoblock(self,jsonstr):
+        block_dict=json.loads(jsonstr)
+        newblk=block.Block()
+        newblk.set_block(block_dict["index"],block_dict["pre_hash"],block_dict["data"],block_dict["time_stamp"],block_dict["hash_val"])
+        return newblk
+
+
     def read_block(self,no):
         for line in open(block.blockchain_file_name, "r"):
-            blockno = line.split(",")[0]
+            line=json.loads(line)
+            blockno = line["index"]#line.split(",")[0]
             if no == int(blockno):
                 return line
         return None
@@ -39,14 +48,16 @@ class Operation(object):
     def read_blocks(self,start_no):
 
         keep_adding=False
-        ans=""
+        ans=[]
+
         for line in open(block.blockchain_file_name,'r'):
-            current_block_no=line.split(",")[0]
+            line = json.loads(line)
+            current_block_no=line["index"]#line.split(",")[0]
 
             if int(current_block_no)==start_no:
                 keep_adding=True
             if keep_adding:
-                ans+=line
+                ans.append(line)
 
         #print ans
         if ans=="":
@@ -69,7 +80,7 @@ class Operation(object):
                 print content
                 if len(content) >= 1:
                     latest_block = content[-1]
-                    latest_block = self.ojbectfy_block(latest_block)
+                    latest_block = self.jsontoblock(latest_block)#self.objectify_block(latest_block)
                 else:
                     print "getting blockchain error"
                     return None
@@ -82,41 +93,12 @@ class Operation(object):
         with open(block.blockchain_file_name, 'r+') as f:
             return ''.join(f.readlines())
 
-
-    def receive_block(self, block_str):
-        block_obj = self.ojbectfy_block(block_str)
-        if block_obj.validate_block(self.latest_block):
-            block_obj.store_block()
-            print "valid block received, updated to blockchain"
-            latest_block = block_obj
-            return True
-        else:
-            if block_obj.index - self.latest_block.index != 1:
-                print "missing blocks, broadcast to get the missing block"
-                self.resolve_conflict()
-            elif block_obj.pre_hash != self.latest_block.hash_val:
-                print "invalid block, dropping"
-                return False
-
-    def resolve_conflict(self):
-        pass
-
-    def response_syn_block(self, received_block_str):
-        received_block = self.ojbectfy_block(received_block_str)
-        last_index = self.latest_block.index
-        cur_index = received_block.index
-        diff = last_index - cur_index
-        blockchain = self.get_block_chain()
-        ret_block_list = blockchain.split('\n')[-diff:]
-        # response ret_block_list
-        return ret_block_list
-
     def calculate_hash_for_block(self,block):
         return str(sha256(str(block.index) + block.pre_hash + block.time_stamp + block.data).hexdigest())
 
     def validate_chain(self,chain):
 
-        dataarr = chain.split("\n")
+        dataarr = chain #.split("\n")
         dataarr=[ data for data in dataarr if len(data)>0]
         for ind,dblock in enumerate(dataarr):
 
@@ -125,10 +107,9 @@ class Operation(object):
 
             # validate dblock with previous block
 
-            current_block= self.ojbectfy_block(dblock)
-            previous_block= self.ojbectfy_block(dataarr[ind-1])
-            #return False if pre_block.index + 1 != self.index or pre_block.hash_val != self.pre_hash or \
-             #               self.calculate_hash_for_block() != self.hash_val else True
+            current_block= self.jsontoblock(dblock)#self.objectify_block(dblock)
+            previous_block= self.jsontoblock(dataarr[ind-1])#self.objectify_block(dataarr[ind-1])
+
             if previous_block.index+1 != current_block.index or previous_block.hash_val != current_block.pre_hash or self.calculate_hash_for_block(current_block) != current_block.hash_val:
                 return False
 
@@ -138,11 +119,9 @@ class Operation(object):
 
         with open(block.blockchain_file_name,'r') as f:
             lines=f.readlines()
-            last_block_no=int(lines[-1][0])
+            last_block_no=int(json.loads(lines[-1])["index"])
             if chain[0]==last_block_no+1:
                 return True
-
-
         return False
 
 
