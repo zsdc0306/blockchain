@@ -2,6 +2,7 @@ import block
 import Queue
 from hashlib import sha256
 
+
 class Operation(object):
     def __init__(self):
         self.latest_block = self.get_latest_block()
@@ -30,10 +31,10 @@ class Operation(object):
         return b
 
     def read_block(self,no):
-        for line in open(block.blockchain_file_name, "r"):
-            blockno = line.split(",")[0]
-            if no == int(blockno):
-                return line
+        with open(block.blockchain_file_name, "r") as f:
+            for i, line in enumerate(f):
+                if i == no:
+                    return line
         return None
 
     def read_blocks(self,start_no):
@@ -173,9 +174,3 @@ class Operation(object):
     def extract_cert_data(block_data_str):
         cert_data, _cert_id, cert_status = block_data_str.split(",")[3:6]
         return cert_data, _cert_id, cert_status
-
-
-
-
-
-
