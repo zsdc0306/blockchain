@@ -4,6 +4,7 @@ import scipy.stats as st
 import Consensus.Utilities as ut
 import threading
 import time
+import operator
 
 blockchain_file_name = 'blockchain'
 
@@ -107,15 +108,18 @@ class Handles(object):
 
     # compare received blocs
     def compare(self):
+
         '''
         get msgs from unique address
         filter by size
         choose the first biggest one
         '''
+
         temp = {}
         print ut.get_mymac()
-        biggest_chain_length=0
-        biggest_chain_address=None
+
+
+
         for ind,msg in enumerate(shared_thread.msglist):
             addr,data=msg
 
@@ -124,13 +128,34 @@ class Handles(object):
                 if self.operations.validate_chain(data):
                     temp[addr]=data
 
-                    if len(data)>biggest_chain_length:
-                        biggest_chain_length=len(data)
-                        biggest_chain_address=addr
+                    #if len(data)>biggest_chain_length:
+                      #  biggest_chain_length=len(data)
+                       # biggest_chain_address=addr
 
-        biggest_chain=temp[biggest_chain_address]
+        biggest_chain=None#temp[biggest_chain_address]
+
+        sorted_chains = sorted(temp.items(), key=operator.itemgetter(1))
+        searching_chain=True
+
+        while searching_chain:
+
+            if len(sorted_chains)<1:
+                break
+
+            biggest_chain=sorted_chains[0][1]
+            if self.operations.fit(biggest_chain):
+                searching_chain=False
+            else:
+                sorted_chains=sorted_chains[1:]
+
+
         print "biggest chain",biggest_chain
+
+        if biggest_chain==None:
+            return
+
         start_index=int(biggest_chain[0])
+
         # Store the latest block
         newcontent = ''
         try:

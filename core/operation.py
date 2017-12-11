@@ -134,6 +134,17 @@ class Operation(object):
 
         return True
 
+    def fit(self,chain):
+
+        with open(block.blockchain_file_name,'r') as f:
+            lines=f.readlines()
+            last_block_no=int(lines[-1][0])
+            if chain[0]==last_block_no+1:
+                return True
+
+
+        return False
+
 
 
 
