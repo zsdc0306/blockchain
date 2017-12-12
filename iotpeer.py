@@ -205,7 +205,7 @@ class Handles(object):
 
         #write new blockchain
         try:
-            with open(blockchain_file_name,'w') as f:
+            with open('db.json','w') as f:
                 for content in newcontent:
 
                     f.write(json.dumps(content))
