@@ -69,17 +69,19 @@ class Handles(object):
         # I
 
         required_block=int(msg)
-        print "Requested block",required_block
+        print "Requested block is ",required_block
 
         block_data=self.operations.read_blocks(required_block)
         blocs_arr_json=json.dumps(block_data)
         #print block_data
         if block_data:
-            iot1.send_data("RCMB",blocs_arr_json)
+
+            for jblock in block_data:
+                iot1.send_data("RCMB",json.dumps(jblock))
         else:
-            print "I do not have the block myself"
+            print "I do not have the %d block myself"%required_block
             return
-        pass
+        return
 
     # RECEIVE MISSING BLOCK
     # Command - RCMB
@@ -103,7 +105,7 @@ class Handles(object):
         if Handles.window:
             Handles.window=False
         Handles.window=True
-        time.sleep(6)
+        time.sleep(10)
         Handles.window=False
         self.compare()
         return
@@ -118,37 +120,62 @@ class Handles(object):
         '''
 
         temp = {}
-        print ut.get_mymac()
+        print "Evaluating all broadcast responses"
 
-
-
+        # mapping it to a dictionary in the format addr:msg where addr is the IP address
         for ind,msg in enumerate(shared_thread.msglist):
+
             addr,data=msg
 
-            if addr not in temp:
+            if addr[0] not in temp:
                 # validate data blocks individually and also if the block fits my blockchain
-                if self.operations.validate_chain(data):
-                    temp[addr]=data
-
-
-        biggest_chain=None
-
-        sorted_chains = sorted(temp.items(), key=operator.itemgetter(1))
-        searching_chain=True
-
-        while searching_chain:
-
-            if len(sorted_chains)<1:
-                break
-
-            biggest_chain=sorted_chains[0][1]
-            if self.operations.fit(biggest_chain):
-                searching_chain=False
+                temp[addr[0]]=[]
+                print data
+                # dirty fix as sometimes data appears as list and other times as single dicts
+                if type(data)==list:
+                    data=data[0]
+                if data not in temp[addr[0]]:
+                    temp[addr[0]].append(data)
             else:
-                sorted_chains=sorted_chains[1:]
+                if data not in temp[addr[0]]:
+                    temp[addr[0]].append(data)
 
+        # chain is received in random order, need to sort before validating and remove duplicates
 
-        print "biggest chain",biggest_chain
+        # Validate chain
+        for addr in temp:
+            print addr,temp[addr];
+            newlist=sorted(temp[addr], key=lambda k: k['index'])
+            temp[addr]=newlist
+            if self.operations.validate_chain(newlist):
+                print "chain is valid"
+            else:
+                del temp[addr]
+
+        # sort all chains
+        biggest_chain=None
+        sorted_chains = sorted(temp.items(), key=operator.itemgetter(1),reverse=True)
+        searching_chain=True
+        print sorted_chains
+
+        # get the biggest chain
+        print "searching for biggest chain"
+        # while searching_chain:
+        #
+        #     if len(sorted_chains)<1:
+        #         biggest_chain=None
+        #         break
+        #
+        #     biggest_chain=sorted_chains[0][1]
+        #     if self.operations.fit(biggest_chain):
+        #         print " found a biggest chain that fits"
+        #         searching_chain=False
+        #     else:
+        #         sorted_chains=sorted_chains[1:]
+        # print "biggest chain is ",biggest_chain
+
+        if len(sorted_chains)>0:
+            biggest_chain=sorted_chains[0][1]
 
         if biggest_chain==None:
             return
@@ -165,7 +192,6 @@ class Handles(object):
 
                     for ind,line in enumerate(content):
                         if int(json.loads(line)["index"])==start_index:
-
                             newcontent=content[:ind]+biggest_chain
                             break
 
@@ -203,11 +229,11 @@ class Handles(object):
             return True
         else:
             if ((int(bc.index) - int(self.operations.latest_block.index)) != 1):
-                print "missing blocks, broadcast to get the missing block"
+                print "I am missing blocks, so broadcasting the missing block"
                 # start timer
                 Handles.window=True
                 iot1.send_data("RQMB",str(self.operations.latest_block.index))
-                time.sleep(6)
+                time.sleep(10)
                 Handles.window=False
                 # stop timer
 
@@ -236,7 +262,7 @@ class Handles(object):
         """
 
         #check turn
-        print "entered new block handler"
+        #print "entered new block handler"
 
         if iot1.producers==None:
             print "Error no witness found"
@@ -245,9 +271,9 @@ class Handles(object):
         mymac=ut.get_mymac()
         if mymac.lower() in iot1.producers:
             ind=ut.whoseturn(len(iot1.producers))
-            print "Turn:",iot1.producers[ind]
+            print "It is the Turn of",iot1.producers[ind]
             if iot1.producers[ind]==mymac.lower():
-                print "my turn";
+                print "Producing";
                 # add block
                 newblock=self.operations.generate_block(msg)
                 data=json.dumps(newblock.__dict__)

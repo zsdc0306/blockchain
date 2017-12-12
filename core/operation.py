@@ -118,7 +118,7 @@ class Operation(object):
 
             # validate dblock with   previous block
 
-            #print type(dblock)
+            print type(dblock)
 
             current_block= self.jsontoblock(dblock)
             previous_block= self.jsontoblock(dataarr[ind-1])
@@ -133,7 +133,7 @@ class Operation(object):
         with open(block.blockchain_file_name,'r') as f:
             lines=f.readlines()
             last_block_no=int(json.loads(lines[-1])["index"])
-            if chain[0]==last_block_no+1:
+            if chain[0]["index"]==last_block_no+1:
                 return True
         return False
 

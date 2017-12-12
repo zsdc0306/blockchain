@@ -64,7 +64,7 @@ class IOTPeer(object):
             pid = Popen(["arp", "-n", addr[0]], stdout=PIPE)
             s = pid.communicate()[0]
             mac = re.search(r"(([a-f\d]{1,2}\:){5}[a-f\d]{1,2})", s).groups()[0]
-            print mac
+            #print mac
         except Exception as e:
             return None
 
@@ -96,7 +96,7 @@ class IOTPeer(object):
         except KeyboardInterrupt:
             raise
         except Exception as e:
-            print e
+            print "Exception",e
             if self.debug:
                 traceback.print_exc()
             return (None, None)
@@ -109,7 +109,7 @@ class IOTPeer(object):
 
         msglen = len(data)
         msg = struct.pack("!4sL%ds" % msglen, msgtype, msglen, data)
-        print msg
+        #print "making msg", msglen,data
 
         return msg
 
