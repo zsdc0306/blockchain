@@ -102,8 +102,8 @@ class Handles(object):
     def window_open(self,iot1,addr,msg):
 
 
-        if Handles.window:
-            Handles.window=False
+        #if Handles.window:
+          #  Handles.window=False
         Handles.window=True
         time.sleep(10)
         Handles.window=False
@@ -233,6 +233,8 @@ class Handles(object):
                 # start timer
                 Handles.window=True
                 iot1.send_data("RQMB",str(self.operations.latest_block.index))
+                # open window for everyone
+                iot1.send_data("WIND", str(self.operations.latest_block.index))
                 time.sleep(10)
                 Handles.window=False
                 # stop timer
