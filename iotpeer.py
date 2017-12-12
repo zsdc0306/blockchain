@@ -209,7 +209,7 @@ class Handles(object):
                 for content in newcontent:
 
                     f.write(json.dumps(content))
-                    f.write("/n")
+                    f.write("\n")
         except Exception as e:
             print e.message
 
