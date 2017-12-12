@@ -11,11 +11,16 @@ p2p_server = None
 
 @app.route('/')
 def hello_world():
-    return 'Hello World!'
+    return 'Welcome to Blockchain IoT Authentication System'
 
 
 @app.route('/requestblock/<data>')
 def request_new(data):
+    if request.method == "POST":
+        if "data" in request.form:
+            data = request.form["data"]
+    else:
+        print "Get method will be removed later"
     try:
         operation.generate_block(data)
         return "New block generated."
@@ -35,6 +40,11 @@ def get_last_block():
 
 @app.route('/sendblock/<data>')
 def receive_block(data):
+    if request.method == "POST":
+        if "data" in request.form:
+            data = request.form["data"]
+    else:
+        print "Get support will be removed later"
     if operation.receive_block(data):
         return "Success"
     else:
@@ -53,7 +63,7 @@ def query_cert(certid):
 @app.route('/authorizeme',methods=['POST'])
 def authorize():
 
-    if request.method=="POST":
+    if request.method == "POST":
         if "data" in request.form:
             data = request.form["data"]
             bc=operation.get_block_chain()
