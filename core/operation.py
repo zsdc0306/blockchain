@@ -81,7 +81,7 @@ class Operation(object):
                 print content
                 if len(content) >= 1:
                     latest_block = content[-1]
-                    latest_block = self.jsontoblock(latest_block)#self.objectify_block(latest_block)
+                    latest_block = self.jsontoblock(json.loads(latest_block))#self.objectify_block(latest_block)
                 else:
                     print "getting blockchain error"
                     return None
@@ -108,8 +108,8 @@ class Operation(object):
 
             # validate dblock with previous block
 
-            current_block= self.jsontoblock(dblock)#self.objectify_block(dblock)
-            previous_block= self.jsontoblock(dataarr[ind-1])#self.objectify_block(dataarr[ind-1])
+            current_block= self.jsontoblock(json.loads(dblock))#self.objectify_block(dblock)
+            previous_block= self.jsontoblock(json.loads(dataarr[ind-1]))#self.objectify_block(dataarr[ind-1])
 
             if previous_block.index+1 != current_block.index or previous_block.hash_val != current_block.pre_hash or self.calculate_hash_for_block(current_block) != current_block.hash_val:
                 return False
