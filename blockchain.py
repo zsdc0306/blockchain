@@ -6,7 +6,8 @@ import iotpeer
 
 app = Flask(__name__)
 operation = op.Operation()
-p2p_server=None
+p2p_server = None
+
 
 @app.route('/')
 def hello_world():
@@ -39,6 +40,16 @@ def receive_block(data):
     else:
         return "Fail to update the blockchain, need to resolve the conflict"
 
+
+@app.route('/query/<certid>')
+def query_cert(certid):
+    res = operation.query_cert(certid)
+    if res is not None:
+        return res
+    else:
+        return "No cert found by %s" % certid
+
+
 @app.route('/authorizeme',methods=['POST'])
 def authorize():
 
@@ -53,12 +64,13 @@ def authorize():
 
     return "Failure"
 
+
 @app.route('/aaddme',methods=['POST'])
 def addme():
     if "data" in request.form:
         data=request.form["data"]
         # Broadcast new block to everyone
-        iot=p2p_server.iot.iot1.send_data("NBLC","ABCD")
+        iot = p2p_server.iot.iot1.send_data("NBLC","ABCD")
         return "Ok Requested on your behalf"
 
 
@@ -76,7 +88,7 @@ def init():
 
 if __name__ == '__main__':
     if operation.init_app():
-        thread_flask = threading.Thread(target=app.run, args=(), kwargs={'port': 5001,'host':'0.0.0.0'})
+        thread_flask = threading.Thread(target=app.run, args=(), kwargs={'port': 5001, 'host': '0.0.0.0'})
         thread_flask.start()
         handlers = iotpeer.Handles(operation)
         p2p_server = iotpeer.p2pThread(handlers)
