@@ -195,7 +195,7 @@ class Handles(object):
 
     def update_bc(self, iot1, addr, msg):
 
-        bc = self.operations.jsontoblock(msg)#self.operations.ojbectfy_block(msg)
+        bc = self.operations.jsontoblock(json.loads(msg))#self.operations.ojbectfy_block(msg)
         print bc.data
         if bc.validate_block(self.operations.latest_block):
             print "valid block"
