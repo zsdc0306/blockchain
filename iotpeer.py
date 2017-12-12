@@ -23,7 +23,7 @@ class shared_thread(threading.Thread):
     def run(self):
         with shared_thread.winlock:
             shared_thread.msglist.append(self.msg)
-            #print shared_thread.msglist
+            print shared_thread.msglist
         pass;
 
 
@@ -72,9 +72,10 @@ class Handles(object):
         print "Requested block",required_block
 
         block_data=self.operations.read_blocks(required_block)
+        blocs_arr_json=json.dumps(block_data)
         #print block_data
         if block_data:
-            iot1.send_data("RCMB",block_data)
+            iot1.send_data("RCMB",blocs_arr_json)
         else:
             print "I do not have the block myself"
             return
@@ -88,7 +89,7 @@ class Handles(object):
         # add data and address to queue if the window is still open
 
         if Handles.window:
-            shared_thread((addr,msg)).start()
+            shared_thread((addr,json.loads(msg))).start()
         else:
             print "Window closed"
 
@@ -152,19 +153,21 @@ class Handles(object):
         if biggest_chain==None:
             return
 
-        start_index=int(biggest_chain[0])
+        start_index=int(biggest_chain[0]["index"])
 
         # Store the latest block
         newcontent = ''
         try:
-            with open(blockchain_file_name, 'r') as f:
+            with open('db.json', 'r') as f:
                 content = f.readlines()
 
                 if len(content) >= 1:
 
                     for ind,line in enumerate(content):
-                        if int(line[0])==start_index:
-                            newcontent=''.join(content[:ind])+biggest_chain
+                        if int(json.loads(line)["index"])==start_index:
+                            print newcontent, content[:ind],type(content[:ind]), type(biggest_chain)
+                            newcontent=content[:ind]+biggest_chain
+                            print newcontent, type(newcontent)
 
                             break
                 print newcontent
@@ -175,11 +178,13 @@ class Handles(object):
         # clear the message window
         shared_thread.msglist=[]
 
+        #write new blockchain
         try:
             with open(blockchain_file_name,'w') as f:
+                for content in newcontent:
 
-                f.write(newcontent)
-                f.write("/n")
+                    f.write(json.dumps(content))
+                    f.write("/n")
         except Exception as e:
             print e.message
 
@@ -245,7 +250,7 @@ class Handles(object):
                 print "my turn";
                 # add block
                 newblock=self.operations.generate_block(msg)
-                data=json.dumps(newblock)
+                data=json.dumps(newblock.__dict__)
                 #content = [str(newblock.index), newblock.pre_hash, str(newblock.time_stamp), newblock.data, newblock.hash_val]
                 #data = ','.join(content)
                 # broadcast latest block

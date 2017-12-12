@@ -31,7 +31,8 @@ class Operation(object):
         return b
 
     def jsontoblock(self,jsonstr):
-        block_dict=json.loads(jsonstr)
+        print jsonstr,type(jsonstr)
+        block_dict=jsonstr #json.loads(jsonstr)
         newblk=block.Block()
         newblk.set_block(block_dict["index"],block_dict["pre_hash"],block_dict["data"],block_dict["time_stamp"],block_dict["hash_val"])
         return newblk
