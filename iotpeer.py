@@ -233,8 +233,6 @@ class Handles(object):
                 # start timer
                 Handles.window=True
                 iot1.send_data("RQMB",str(self.operations.latest_block.index))
-                # open window for everyone
-                iot1.send_data("WIND", str(self.operations.latest_block.index))
                 time.sleep(10)
                 Handles.window=False
                 # stop timer
