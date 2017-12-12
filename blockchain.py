@@ -48,11 +48,10 @@ def authorize():
 
 @app.route('/aaddme',methods=['POST'])
 def addme():
+
     if "data" in request.form:
 
         data=request.form["data"]
-
-
         # Broadcast new block to everyone
         iot=p2p_server.iot.iot1.send_data("NBLC",str(data))
         return "Ok Requested on your behalf"

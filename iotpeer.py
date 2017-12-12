@@ -23,7 +23,7 @@ class shared_thread(threading.Thread):
     def run(self):
         with shared_thread.winlock:
             shared_thread.msglist.append(self.msg)
-            print shared_thread.msglist
+            #print shared_thread.msglist
         pass;
 
 
@@ -165,12 +165,11 @@ class Handles(object):
 
                     for ind,line in enumerate(content):
                         if int(json.loads(line)["index"])==start_index:
-                            print newcontent, content[:ind],type(content[:ind]), type(biggest_chain)
-                            newcontent=content[:ind]+biggest_chain
-                            print newcontent, type(newcontent)
 
+                            newcontent=content[:ind]+biggest_chain
                             break
-                print newcontent
+
+                #print newcontent
 
         except Exception as e:
             print e.message
@@ -238,6 +237,7 @@ class Handles(object):
 
         #check turn
         print "entered new block handler"
+
         if iot1.producers==None:
             print "Error no witness found"
             return False

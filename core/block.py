@@ -31,7 +31,7 @@ class Block(object):
 
     def store_block(self, mode='a'):
         block_str = json.dumps(self.__dict__)#self.stringify_block()
-        print block_str
+        #print block_str
         try:
             with open(blockchain_file_name, mode) as f:
                 f.write(block_str)
@@ -41,7 +41,7 @@ class Block(object):
 
     def stringify_block(self):
         content = [str(self.index), self.pre_hash, str(self.time_stamp), self.data, self.hash_val]
-        print self.pre_hash
+        #print self.pre_hash
         return ','.join(content)
 
     def calculate_hash_for_block(self):

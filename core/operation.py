@@ -17,9 +17,9 @@ class Operation(object):
 
     def init_app(self):
         if self.latest_block is None:
-            print "init the first block"
+            #print "init the first block"
             self.init_block()
-            print "init app again"
+            #print "init app again"
             self.init_app()
         return True
 
@@ -31,8 +31,18 @@ class Operation(object):
         return b
 
     def jsontoblock(self,jsonstr):
-        print jsonstr,type(jsonstr)
-        block_dict=jsonstr #json.loads(jsonstr)
+
+        '''
+        deserialize json string to block object
+        :param jsonstr: It is a json string converted to a dictionary
+        :return: new block
+        '''
+
+        if type(jsonstr)==str:
+            jsonstr=json.loads(jsonstr)
+
+        #print type(jsonstr)
+        block_dict=jsonstr
         newblk=block.Block()
         newblk.set_block(block_dict["index"],block_dict["pre_hash"],block_dict["data"],block_dict["time_stamp"],block_dict["hash_val"])
         return newblk
@@ -78,7 +88,7 @@ class Operation(object):
         try:
             with open(block.blockchain_file_name,"r") as f:
                 content = f.readlines()
-                print content
+                #print content
                 if len(content) >= 1:
                     latest_block = content[-1]
                     latest_block = self.jsontoblock(json.loads(latest_block))#self.objectify_block(latest_block)
@@ -106,10 +116,12 @@ class Operation(object):
             if ind==0:
                 continue
 
-            # validate dblock with previous block
+            # validate dblock with   previous block
 
-            current_block= self.jsontoblock(json.loads(dblock))#self.objectify_block(dblock)
-            previous_block= self.jsontoblock(json.loads(dataarr[ind-1]))#self.objectify_block(dataarr[ind-1])
+            #print type(dblock)
+
+            current_block= self.jsontoblock(dblock)
+            previous_block= self.jsontoblock(dataarr[ind-1])
 
             if previous_block.index+1 != current_block.index or previous_block.hash_val != current_block.pre_hash or self.calculate_hash_for_block(current_block) != current_block.hash_val:
                 return False
