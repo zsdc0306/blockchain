@@ -33,6 +33,17 @@ class CertBlock(Block):
         return str(sha256(str(self.index) + self.pre_hash + self.time_stamp + self.data +
                           self.cert_id + self.cert_status).hexdigest())
 
+
+    def init_first_block(self):
+        self.index = 0
+        self.pre_hash = "0"
+        self.data = "cert"
+        self.time_stamp = "1510816805"  # str(time()).split('.')[0]
+        self.cert_id = "0"
+        self.cert_status = True
+        self.producer = "0"
+        self.hash_val = self.calculate_hash_for_block()
+
     def stringify_block(self):
         content = [str(self.index), self.pre_hash, str(self.time_stamp), self.data,
                    self.cert_id, self.cert_status,

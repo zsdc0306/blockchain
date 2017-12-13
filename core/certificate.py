@@ -1,3 +1,6 @@
+from subprocess import Popen, PIPE, STDOUT
+
+
 class Certificate(object):
     def __init__(self):
         # attribution for cert
@@ -13,9 +16,9 @@ class Certificate(object):
         pass
 
     # convert the certificate to string
-    def serialize_cert(self):
-        pass
-
-    def deserialize_cert(self, cert_str):
-        pass
+    @staticmethod
+    def get_cert_id_and_status_and_public(cert_encoded_str):
+        p = Popen(['java', '-jar', './CertToolKit.jar', '-c', cert_encoded_str], stdout=PIPE, stderr=STDOUT)
+        cert_id, is_valid, public_key = p.stdout.readline()
+        return cert_id, is_valid, public_key
 
