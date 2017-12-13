@@ -15,10 +15,24 @@ class Certificate(object):
     def revoke(self):
         pass
 
-    # convert the certificate to string
     @staticmethod
     def get_cert_id_and_status_and_public(cert_encoded_str):
         p = Popen(['java', '-jar', './CertToolKit.jar', '-c', cert_encoded_str], stdout=PIPE, stderr=STDOUT)
         cert_id, is_valid, public_key = p.stdout.readline()
         return cert_id, is_valid, public_key
+
+    @staticmethod
+    def get_cert_str_from_file(file_path):
+        p = Popen(['java', '-jar', './CertToolKit.jar', '-e', file_path], stdout=PIPE, stderr=STDOUT)
+        return p.stdout.readline()
+
+    @staticmethod
+    def get_cert_text_from_file(file_path):
+        p = Popen(['java', '-jar', './CertToolKit.jar', '-l', file_path], stdout=PIPE, stderr=STDOUT)
+        return ''.join(p.stdout.readlines())
+
+    @staticmethod
+    def get_cert_text_from_decoded_str(cert_encoded_str):
+        p = Popen(['java', '-jar', './CertToolKit.jar', '-d', cert_encoded_str], stdout=PIPE, stderr=STDOUT)
+        return ''.join(p.stdout.readlines())
 
