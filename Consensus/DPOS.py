@@ -23,3 +23,16 @@ with open("../AdminInfo.json") as file:
 print ut.validate_timestamp(0,1509866656)
 print ut.validate_timestamp(1, 1509866669)
 print "done"
+
+
+'''
+take ip from address, get its corresponding mac address
+check producer array for it
+if in producer array:
+    get its index
+send the timestamp and index to validate_timestamp function
+if result is true:
+    its true
+else:
+    its false
+'''

@@ -118,11 +118,11 @@ class Operation(object):
 
             # validate dblock with   previous block
 
-            print type(dblock)
+            #print type(dblock)
 
             current_block= self.jsontoblock(dblock)
             previous_block= self.jsontoblock(dataarr[ind-1])
-
+            #validating block
             if previous_block.index+1 != current_block.index or previous_block.hash_val != current_block.pre_hash or self.calculate_hash_for_block(current_block) != current_block.hash_val:
                 return False
 

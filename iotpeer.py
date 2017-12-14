@@ -130,7 +130,7 @@ class Handles(object):
             if addr[0] not in temp:
                 # validate data blocks individually and also if the block fits my blockchain
                 temp[addr[0]]=[]
-                print data
+                #print data
                 # dirty fix as sometimes data appears as list and other times as single dicts
                 if type(data)==list:
                     data=data[0]
@@ -148,7 +148,8 @@ class Handles(object):
             newlist=sorted(temp[addr], key=lambda k: k['index'])
             temp[addr]=newlist
             if self.operations.validate_chain(newlist):
-                print "chain is valid"
+                continue
+                #print "chain is valid"
             else:
                 del temp[addr]
 
@@ -223,13 +224,13 @@ class Handles(object):
         bc = self.operations.jsontoblock(json.loads(msg))#self.operations.ojbectfy_block(msg)
         print bc.data
         if bc.validate_block(self.operations.latest_block):
-            print "valid block"
+            #print "valid block"
             bc.store_block()
             self.operations.latest_block = bc
             return True
         else:
             if ((int(bc.index) - int(self.operations.latest_block.index)) != 1):
-                print "I am missing blocks, so broadcasting the missing block"
+                #print "I am missing blocks, so broadcasting the missing block"
                 # start timer
                 Handles.window=True
                 iot1.send_data("RQMB",str(self.operations.latest_block.index))
@@ -271,7 +272,7 @@ class Handles(object):
         mymac=ut.get_mymac()
         if mymac.lower() in iot1.producers:
             ind=ut.whoseturn(len(iot1.producers))
-            print "It is the Turn of",iot1.producers[ind]
+            #print "It is the Turn of",iot1.producers[ind]
             if iot1.producers[ind]==mymac.lower():
                 print "Producing";
                 # add block

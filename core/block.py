@@ -8,12 +8,13 @@ blockchain_file_name = 'db.json'
 
 class Block(object):
 
-    def __init__(self, index=None, pre_hash=None, time_stamp=None, data=None, hash_val=None):
+    def __init__(self, index=None, pre_hash=None, time_stamp=None, data=None, hash_val=None, producer=None):
         self.index = index
         self.pre_hash = pre_hash
         self.time_stamp = time_stamp
         self.data = data
         self.hash_val = data
+        self.producer=producer
 
     def set_block(self, index, pre_hash, data, time_stamp=None, hash_val=None):
         self.index = int(index)

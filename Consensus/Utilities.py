@@ -26,7 +26,7 @@ def whoseturn(no_of_producers):
 
     currtime=gettime_ntp()[1]
     totalslots= (currtime-tb0)/timeslot;
-    print totalslots%no_of_producers,currtime
+    #print totalslots%no_of_producers,currtime
     return totalslots % no_of_producers
 
 #validate that the timestamp and producer are correct
@@ -53,4 +53,46 @@ def get_mymac():
         return None
 
     return mac
+
+# return mac address from IP address
+def ip_to_mac(ipaddr):
+    mac=''
+    import subprocess
+    import sys
+
+    ip = sys.argv[1]
+
+    # ping ip
+    p = subprocess.Popen(['ping', ip, '-c1'], stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
+
+    out, err = p.communicate()
+
+    # arp list
+    p = subprocess.Popen(['arp', '-an'], stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
+
+    out, err = p.communicate()
+
+    # print out,err
+    try:
+        arp = [x for x in out.split('\n') if ip in x][0]
+        # print ' '.join(arp.split()).split()[3]
+    except IndexError:
+        sys.exit(1)  # no arp entry found
+    else:
+        # get the mac address from arp list
+        # bug: when the IP does not exists on the local network
+        # this will print out the interface name
+        mac= ' '.join(arp.split()).split()[3]
+
+    return mac
+
+def validate_producer(ipaddr,producer_mac_index,timestamp):
+
+    mac1=ip_to_mac(ipaddr)
+
+    if validate_timestamp(producer_mac_index,timestamp):
+        return True
+    return False
 
