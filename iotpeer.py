@@ -143,21 +143,23 @@ class Handles(object):
         # chain is received in random order, need to sort before validating and remove duplicates
 
         # Validate chain
-        for addr in temp:
-            print addr,temp[addr];
+        for addr in temp.keys():
+            #print addr,temp[addr];
             newlist=sorted(temp[addr], key=lambda k: k['index'])
             temp[addr]=newlist
+
             if self.operations.validate_chain(newlist):
                 continue
                 #print "chain is valid"
             else:
                 del temp[addr]
 
+
         # sort all chains
         biggest_chain=None
         sorted_chains = sorted(temp.items(), key=operator.itemgetter(1),reverse=True)
         searching_chain=True
-        print sorted_chains
+        #print sorted_chains
 
         # get the biggest chain
         print "searching for biggest chain"
@@ -184,7 +186,7 @@ class Handles(object):
         start_index=int(biggest_chain[0]["index"])
 
         # Store the latest block
-        newcontent = ''
+        newcontent = []
         try:
             with open('db.json', 'r') as f:
                 content = f.readlines()
@@ -204,13 +206,16 @@ class Handles(object):
         # clear the message window
         shared_thread.msglist=[]
 
-        #write new blockchain
+        #write new blockchain - dirty fix: some input is json while some is dict, so convert and write
         try:
             with open('db.json','w') as f:
                 for content in newcontent:
+                    if type(content)==dict:
+                        f.write(json.dumps(content))
+                        f.write("\n")
+                    else:
+                        f.write(content)
 
-                    f.write(json.dumps(content))
-                    f.write("\n")
         except Exception as e:
             print e.message
 
@@ -222,7 +227,7 @@ class Handles(object):
     def update_bc(self, iot1, addr, msg):
 
         bc = self.operations.jsontoblock(json.loads(msg))#self.operations.ojbectfy_block(msg)
-        print bc.data
+        #print bc.data
         if bc.validate_block(self.operations.latest_block):
             #print "valid block"
             bc.store_block()
